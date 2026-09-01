@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FBF8ED">
+<title>OC关系测试｜双人羁绊解析</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#2BB9C7;
+  --teal-deep:#1C93A0;
+  --pink:#FA75A8;
+  --pink-deep:#E2568A;
+  --peach:#FBD8CD;
+  --peach-deep:#F3B79E;
+  --white:#FFFFFF;
+  --ink:#3B342C;
+  --muted:#948B7C;
+  --bg:#FBF8ED;
+  --paper:#FFFDF6;
+  --line:#EAE2D2;
+  --shadow:0 18px 46px rgba(59,52,44,.08);
+  --r-lg:28px;
+  --r-md:20px;
+  --r-sm:14px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  min-height:100vh;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Noto Sans SC',-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  line-height:1.65;
+  -webkit-tap-highlight-color:transparent;
+}
+h1,h2,h3,.disp{font-family:'Poppins','Noto Sans SC',sans-serif}
+button{font:inherit}
+.wrap{width:min(480px,100%);margin:0 auto;padding:20px 16px 40px}
+.hidden{display:none!important}
+
+/* ---------- shared bits ---------- */
+.eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--teal-deep);font-weight:700}
+
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow)}
+
+.btn{border:none;border-radius:999px;padding:15px 20px;font-weight:700;font-size:15px;cursor:pointer;width:100%;transition:.15s;letter-spacing:.01em}
+.btn-primary{background:var(--ink);color:#fff}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{opacity:.32;cursor:not-allowed}
+.btn-ghost{background:var(--white);color:var(--ink);border:1.5px solid var(--line)}
+.btn-ghost:active{transform:scale(.98)}
+.btn-row{display:flex;gap:10px;margin-top:14px}
+.btn-row .btn{flex:1}
+
+/* ---------- cover ---------- */
+.cover-top{padding:22px 2px 6px;text-align:center}
+.cover-top h1{font-size:clamp(30px,9vw,40px);font-weight:800;letter-spacing:-.03em;margin:0;line-height:1.15}
+
+.name-card{margin-top:18px;background:var(--teal-deep);border-radius:var(--r-lg);padding:20px;box-shadow:var(--shadow)}
+.name-card .eyebrow{color:var(--peach)}
+.name-card h3{color:#fff;font-size:16px;margin:6px 0 14px;font-weight:700}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11.5px;color:#DFF7F5;margin-bottom:6px;letter-spacing:.04em}
+.field input{width:100%;border:none;border-radius:14px;padding:13px 14px;font-size:15px;font-weight:600;background:rgba(255,255,255,.94);color:var(--ink)}
+.field input::placeholder{color:#a89e8d;font-weight:500}
+.name-card .btn{margin-top:6px;background:var(--pink);color:#fff}
+
+/* ---------- quiz ---------- */
+.progressBox{position:sticky;top:0;z-index:20;background:rgba(251,248,237,.92);backdrop-filter:blur(12px);padding:12px 0 10px;margin:0 -16px;padding-left:16px;padding-right:16px}
+.progressTop{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--muted);margin-bottom:7px}
+.progressTop .who{display:flex;align-items:center;gap:6px;font-weight:700;color:var(--ink)}
+.who i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.bar{height:5px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:99px;transition:.35s}
+
+.qcard{margin-top:14px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow)}
+.qcard .tag{display:inline-block;background:var(--peach);color:var(--pink-deep);font-size:11px;font-weight:700;letter-spacing:.06em;padding:5px 11px;border-radius:999px;margin-bottom:12px}
+.qnum{font-size:11px;color:#b3a998;margin-bottom:6px}
+.question{font-size:19px;line-height:1.5;font-weight:700;letter-spacing:-.01em;margin:2px 0 18px}
+.option{width:100%;text-align:left;border:1.5px solid var(--line);background:#FFFEFA;border-radius:16px;padding:13px 14px;margin:8px 0;cursor:pointer;display:flex;align-items:flex-start;gap:11px;color:var(--ink);transition:.15s}
+.option:active{transform:scale(.99)}
+.option .idx{flex:none;width:24px;height:24px;border-radius:50%;background:var(--line);display:grid;place-items:center;font-size:11px;font-weight:700;color:var(--muted)}
+.option.selected{background:#E7F8F6;border-color:var(--teal)}
+.option.selected .idx{background:var(--teal);color:#fff}
+
+/* ---------- transition ---------- */
+.trans-card{margin-top:8px;background:var(--teal);border-radius:var(--r-lg);padding:30px 22px;text-align:center;color:#fff;box-shadow:var(--shadow)}
+.trans-card h2{font-size:22px;margin:0 0 8px;font-weight:800}
+.trans-card p{margin:0;font-size:13.5px;color:#EAFBFA}
+.trans-card .btn{margin-top:20px;background:#fff;color:var(--teal-deep)}
+
+/* ---------- result ---------- */
+.res-hero{margin-top:6px;background:var(--teal-deep);border-radius:30px;padding:28px 24px;color:#fff;box-shadow:var(--shadow)}
+.res-hero .eyebrow{color:var(--peach)}
+.res-hero h2{font-size:clamp(26px,8vw,32px);font-weight:800;letter-spacing:-.02em;margin:8px 0 6px}
+.res-hero .pair{font-size:12.5px;color:#DFF7F5;margin:0 0 10px}
+.res-hero .tagline{font-size:14px;color:#F1FDFC;margin:0;line-height:1.6}
+
+.sectionTitle{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal-deep);font-weight:800;margin:26px 2px 10px}
+
+.dim-block{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);padding:15px 16px;margin-bottom:10px}
+.dim-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.dim-head b{font-size:13.5px}
+.dim-head span{font-size:10.5px;color:var(--muted)}
+.dim-row{display:flex;align-items:center;gap:9px;margin:7px 0}
+.dim-row .who{flex:none;width:52px;font-size:11px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meter{flex:1;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.meter i{display:block;height:100%;border-radius:99px}
+.meter.teal i{background:var(--teal)}
+.meter.pink i{background:var(--pink)}
+.dim-row .pct{flex:none;width:34px;text-align:right;font-size:11px;color:var(--muted);font-weight:700}
+
+.info-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);padding:17px 18px;margin-bottom:10px}
+.info-card b{display:block;font-size:13.5px;margin-bottom:6px;color:var(--ink)}
+.info-card p{margin:0;font-size:13px;color:#5a5346}
+
+.prompt-list{list-style:none;margin:0;padding:0}
+.prompt-list li{display:flex;gap:10px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 15px;margin-bottom:9px;font-size:13px;color:#4a4438}
+.prompt-list li .n{flex:none;width:20px;height:20px;border-radius:50%;background:var(--pink);color:#fff;font-size:10.5px;font-weight:800;display:grid;place-items:center;margin-top:1px}
+
+.result-actions{display:flex;gap:10px;margin-top:20px}
+.result-actions .btn{flex:1}
+.copy-hint{text-align:center;font-size:11px;color:var(--muted);margin-top:8px}
+
+.disclaimer{font-size:10.5px;color:#a89e8d;text-align:center;margin-top:18px;padding:0 8px;line-height:1.7}
+
+.site-credit{width:min(480px,100%);margin:26px auto 4px;padding:14px 0 4px;text-align:center;color:var(--muted);font-size:12px;letter-spacing:.16em;font-weight:700}
+.site-credit span{display:inline-block;padding:7px 15px;border:1px solid var(--line);border-radius:999px;background:var(--paper)}
+
+@media(max-width:380px){
+  .card,.qcard{padding:18px}
+  .question{font-size:17.5px}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+
+  <!-- ============ COVER ============ -->
+  <section id="screen-cover">
+    <div class="cover-top">
+      <h1>OC关系测试</h1>
+      <p class="cover-desc">通过依赖倾向、冲突模式、信任程度、主导权，探索你的OC关系模式。</p>
+    </div>
+
+    <div class="name-card">
+      <div class="eyebrow">开始之前</div>
+      <h3>先给两位OC起个名字</h3>
+      <div class="field"><label>OC A 的名字</label><input id="nameA" type="text" placeholder="例如：沈知遥"></div>
+      <div class="field"><label>OC B 的名字</label><input id="nameB" type="text" placeholder="例如：林昼"></div>
+      <button class="btn" id="startBtn">开始测试</button>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section id="screen-quiz" class="hidden">
+    <div class="progressBox">
+      <div class="progressTop">
+        <span class="who"><i id="whoDot"></i><span id="whoName"></span></span>
+        <span id="counter"></span>
+      </div>
+      <div class="bar"><i id="bar"></i></div>
+    </div>
+    <div class="qcard">
+      <span class="tag" id="qtag"></span>
+      <div class="qnum" id="qnum"></div>
+      <div class="question" id="question"></div>
+      <div id="options"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="prevBtn">上一题</button>
+      <button class="btn btn-primary" id="nextBtn" disabled>下一题</button>
+    </div>
+  </section>
+
+  <!-- ============ TRANSITION ============ -->
+  <section id="screen-transition" class="hidden">
+    <div class="trans-card">
+      <h2 id="transTitle"></h2>
+      <p id="transText"></p>
+      <button class="btn" id="transBtn"></button>
+    </div>
+  </section>
+
+  <!-- ============ RESULT ============ -->
+  <section id="screen-result" class="hidden">
+    <div class="res-hero">
+      <div class="eyebrow">关系类型</div>
+      <h2 id="resName"></h2>
+      <p class="pair" id="resPair"></p>
+      <p class="tagline" id="resTagline"></p>
+    </div>
+
+    <div class="sectionTitle">四维对比</div>
+    <div id="dimBlocks"></div>
+
+    <div class="sectionTitle">关系类型分析</div>
+    <div class="info-card"><p id="resAnalysis"></p></div>
+
+    <div class="sectionTitle">相处模式</div>
+    <div class="info-card"><p id="resGetAlong"></p></div>
+
+    <div class="sectionTitle">冲突模式</div>
+    <div class="info-card"><p id="resConflict"></p></div>
+
+    <div class="sectionTitle">情感连接方式</div>
+    <div class="info-card"><p id="resBond"></p></div>
+
+    <div class="sectionTitle">创作提示</div>
+    <ul class="prompt-list" id="resPrompts"></ul>
+
+    <div class="result-actions">
+      <button class="btn btn-ghost" id="restartBtn">重新测试</button>
+      <button class="btn btn-primary" id="copyBtn">复制结果</button>
+    </div>
+    <div class="copy-hint" id="copyHint"></div>
+
+    <p class="disclaimer">测试结果基于你的作答生成，仅供角色塑造与创作参考，不代表唯一解读，欢迎按你的理解调整故事走向。</p>
+  </section>
+
+</div>
+
+<footer class="site-credit"><span>@ginyu</span></footer>
+
+<script>
+/* ---------------- 题库（依赖倾向 / 冲突模式 / 信任速度 / 主导权 各4题） ---------------- */
+const QUESTIONS=[
+ {dim:'dependency',tag:'依赖倾向',q:'独处很久之后，TA的第一反应是？',o:['很享受，一个人也能过得很好','有点想找人说说话','会主动联系在意的人','感到强烈的不安，急需陪伴']},
+ {dim:'dependency',tag:'依赖倾向',q:'如果重要的人突然联系不上，TA会？',o:['相信对方能处理好，不会多想','稍微担心，但不会打扰','忍不住反复尝试联系','立刻放下手头一切去找对方']},
+ {dim:'dependency',tag:'依赖倾向',q:'TA做重大决定时，更倾向于？',o:['完全自己拿主意','参考别人意见，但自己决定','希望有人陪着一起商量','没有对方点头就不敢行动']},
+ {dim:'dependency',tag:'依赖倾向',q:'在TA心里，"安全感"更多来自？',o:['自己的能力和掌控感','稳定的日常节奏','身边有信任的人','某个具体的人是否在身边']},
+ {dim:'conflict',tag:'冲突模式',q:'和别人意见不合时，TA第一反应是？',o:['直接反驳，坚持己见','摆事实讲道理说服对方','先退一步，避免冲突升级','假装没事，心里记下']},
+ {dim:'conflict',tag:'冲突模式',q:'面对针锋相对的争执，TA更可能？',o:['寸步不让，把话说到底','用逻辑压制对方','主动服软，先低头','转身离开，冷处理']},
+ {dim:'conflict',tag:'冲突模式',q:'被误会时，TA的反应是？',o:['立刻反击，绝不吃亏','冷静解释，摆证据','委屈但选择沉默','假装不在意，实则记仇']},
+ {dim:'conflict',tag:'冲突模式',q:'如果对方一直不肯让步，TA会？',o:['奉陪到底，谁怕谁','找到对方逻辑漏洞反击','主动让步，息事宁人','表面妥协，心里另有打算']},
+ {dim:'trust',tag:'信任程度',q:'认识一个新的人，TA需要多久才会卸下防备？',o:['几乎不设防，很快敞开心扉','相处一段时间后逐渐信任','需要很长时间反复确认','几乎不会真正信任别人']},
+ {dim:'trust',tag:'信任程度',q:'TA愿意向别人展示脆弱的一面吗？',o:['完全没问题，很自然','对少数亲近的人可以','极少，除非被逼到墙角','几乎从不']},
+ {dim:'trust',tag:'信任程度',q:'当有人对TA示好，TA的第一反应是？',o:['欣然接受，投桃报李','先观察一下再回应','保持警惕，怀疑动机','本能地想推开']},
+ {dim:'trust',tag:'信任程度',q:'TA与人建立深度关系的速度？',o:['很快，容易一见如故','中等，需要共同经历','很慢，需要长期考验','几乎不建立，只维持表面关系']},
+ {dim:'dominance',tag:'主导权',q:'和别人一起做计划时，TA通常？',o:['主导全局，安排一切','提出想法，愿意听取意见','跟随对方安排，偶尔提建议','完全交给对方决定']},
+ {dim:'dominance',tag:'主导权',q:'在关系中，谁更容易"说了算"？',o:['一定是TA自己','大部分时候是TA','视情况而定，比较平等','通常是对方']},
+ {dim:'dominance',tag:'主导权',q:'如果两人观点不同，最终听谁的？',o:['别人得听TA的','TA会争取但也能妥协','TA更容易被说服','TA习惯顺着对方']},
+ {dim:'dominance',tag:'主导权',q:'TA更适应哪种关系状态？',o:['我说了算，别人配合我','我们商量着来','对方拿主意，我配合','完全依附对方存在']}
+];
+const DIM_META={
+ dependency:{name:'依赖倾向',note:'越高代表越依赖对方'},
+ conflict:{name:'冲突模式',note:'越高代表越倾向对抗'},
+ trust:{name:'信任速度',note:'越高代表越容易信任'},
+ dominance:{name:'主导权',note:'越高代表越习惯主导'}
+};
+
+/* ---------------- 十二种关系类型 ---------------- */
+const TYPES={
+ symbiosis:{name:'共生羁绊',tagline:'彼此的安全感深度绑定，一方动摇另一方也会跟着摇晃',
+  analysis:'{A}和{B}几乎是彼此存在的证明——两人都习惯把安全感寄托在对方身上，信任建立得又快又深，几乎不需要试探期。这种关系像两棵缠绕生长的藤蔓，根系早已分不清彼此。',
+  getAlong:'日常相处里，{A}和{B}很少有明确的"边界"，更多是自然而然的黏在一起：一起做决定、一起面对麻烦，情绪也会互相传染。',
+  conflict:'因为太依赖彼此，任何一次冷战都会让两人都很难受，所以真正的冲突往往被快速压下——他们更擅长和好，而不是对抗。',
+  bond:'情感连接不靠语言确认，而是靠"在不在场"本身：只要对方还在身边，一切就是稳的；一旦对方消失，两人都会失衡。',
+  prompts:['设想一个世界观设定：如果失去对方，{A}或{B}会为了找回羁绊付出怎样的代价','写一个{A}以为{B}要离开、情绪彻底失控的场景','设计两人共同信奉的一条准则或秘密约定，作为这段关系的世界观基石']},
+ loveHate:{name:'相爱相杀',tagline:'爱得越深、吵得越凶，冲突本身就是他们靠近的方式',
+  analysis:'{A}和{B}都是高冲突、高依赖的性格，争吵对他们来说不是关系的裂缝，而是另一种确认彼此重要性的方式——越吵越黏，越黏越吵。',
+  getAlong:'平时两人相处火药味很重，嘴上不饶人，但只要有人真正想离开，另一方一定第一个冲上去拦住。',
+  conflict:'冲突频繁且直接，谁都不肯先服软，但吵架的终点几乎从不是分开，而是更靠近一步的和解。',
+  bond:'情感连接建立在"被对方看见"上——对{A}和{B}来说，冷淡比争吵更可怕，只要还在吵，就说明还在乎。',
+  prompts:['想象一个设定：{A}和{B}原本处于对立阵营，却因为彼此吸引而不断交锋','写一场两人吵到最凶、却在结尾突然坦白心意的戏','设计一段贯穿两人关系始终的核心矛盾——是立场、信仰还是身份的冲突']},
+ guardian:{name:'守护与被守护',tagline:'一强一弱的天然搭档，保护与被保护构成关系的骨架',
+  analysis:'{A}和{B}中有一方依赖性强、主导权弱，另一方独立性强、习惯主导——这种落差天然形成了守护与被守护的关系结构。',
+  getAlong:'强势的一方会不自觉地把对方放在需要照顾的位置上，而依赖的一方也会自然地把对方当作依靠，分工清晰，很少争夺主导权。',
+  conflict:'冲突通常发生在依赖的一方渴望更多自主权、或守护的一方感到疲惫的时刻，但对抗很少，更多是无声的调整。',
+  bond:'情感连接建立在"被需要"和"被保护"的双向满足上——一方因为被依赖而确认价值，另一方因为被保护而感到安心。',
+  prompts:['构建一个世界观：{A}守护{B}的理由，是否牵扯到更大的责任、身份或宿命','写一次被保护的一方主动站出来保护对方的反转戏','设想守护关系被打破的极端情境——如果{A}再也无法保护{B}，故事会走向哪里']},
+ rivals:{name:'势均力敌的对手',tagline:'谁也不服谁，较劲本身就是一种惺惺相惜',
+  analysis:'{A}和{B}都独立性强、主导欲强，谁都不甘心居于下风，两人的关系更像是持续升级的较量，而不是单纯的依附。',
+  getAlong:'相处时充满暗中比较和较劲，但正因为势均力敌，两人反而彼此欣赏，能力和态度都是相互认可的前提。',
+  conflict:'冲突频繁且各不相让，但很少伤及关系根本——对他们来说，认真对抗对方本身就是一种尊重。',
+  bond:'情感连接建立在"被当作对手"这件事上——只有真正在意的人，才值得拿出全部实力去较量。',
+  prompts:['设计一个更大的舞台，让{A}和{B}的较量牵涉到各自所属的势力或阵营','写一场两人正面对决、赢家却主动让出胜利的戏','想象两人多年后重逢，较量的性质已经从个人恩怨变成了理念之争']},
+ silentUnderstanding:{name:'无声默契',tagline:'不需要多说什么，彼此的存在就是最大的安心',
+  analysis:'{A}和{B}冲突倾向都很低，信任建立得也很快，两人几乎不需要争执或反复确认，很多事情心照不宣。',
+  getAlong:'相处安静而稳定，很少有戏剧性的场面，更多是并肩做事、偶尔一个眼神就懂对方在想什么。',
+  conflict:'意见不合时，两人都倾向退让或冷静沟通，冲突很快会被消化，几乎不留痕迹。',
+  bond:'情感连接靠长期积累的默契维系——不必解释太多，对方的一个动作、一句话就足够传达全部心意。',
+  prompts:['设想一个共同经历过的秘密事件，成为两人默契的根源','写一场两人不需要对话、仅凭动作就完成配合的戏','构建一种只属于{A}和{B}的世界观符号或信物，承载着无声的信任']},
+ oneWayHealing:{name:'单向治愈',tagline:'一个人在悄悄付出，另一个人也在悄悄被改变',
+  analysis:'{A}依赖别人少、习惯自己扛，{B}则更擅长隐忍付出，这段关系里往往是一方在不动声色地照顾、修补另一方。',
+  getAlong:'表面上两人各自独立、互不打扰，但付出的一方总在细节里悄悄补位，被照顾的一方常常后知后觉。',
+  conflict:'几乎没有正面冲突，付出的一方选择隐忍，被照顾的一方也很少察觉到自己被让步，矛盾更多停留在心里。',
+  bond:'情感连接是不对称却真实的——一方在意却不说，另一方被影响却未必自知，直到某个瞬间才恍然大悟。',
+  prompts:['设想{B}的隐忍付出背后，是否藏着一段两人都不愿提起的往事','写一个被照顾的角色突然意识到对方一直在悄悄付出的瞬间','设计一个更大的背景故事：如果{A}知道了{B}多年来的付出，两人的关系会走向何方']},
+ nemesis:{name:'针锋相对的宿敌',tagline:'见面就是火花四溅，却谁也离不开谁的战场',
+  analysis:'{A}和{B}都是高冲突、对抗型性格，见面几乎必吵，但这种针锋相对本身，反而成了两人关系里最稳定的部分。',
+  getAlong:'平时几乎没有"和平相处"这个选项，见面就是交锋，但奇怪的是两人从不真正远离彼此。',
+  conflict:'冲突是这段关系的常态，直接、激烈、毫不掩饰，双方都不惮于把话说狠。',
+  bond:'情感连接藏在"值得对抗"这件事里——如果不在乎，根本懒得针锋相对，宿敌关系本身就是一种执念。',
+  prompts:['构建一个让两人注定站在对立面的世界观设定——阵营、信仰或身份的根本冲突','写一场两人交锋到最激烈、却谁也没有真正伤害对方的戏','设想如果这场宿敌关系持续到白发苍苍，两人会如何回望彼此']},
+ quietSacrifice:{name:'隐忍成全',tagline:'一个人让着，一个人扛着，关系靠沉默维系',
+  analysis:'{A}主导欲强但冲突倾向低，{B}依赖性强也倾向隐忍——两人都不习惯正面摊牌，关系靠一方的让步和另一方的承受维持平衡。',
+  getAlong:'表面上风平浪静，主导的一方安排一切，依赖的一方默默配合，很少有人开口说出真实感受。',
+  conflict:'几乎不会爆发正面冲突，不满往往被压下，用沉默代替争执，久而久之容易积累误会。',
+  bond:'情感连接靠长期的付出和忍耐维系——两人都在用"不说"来保护关系，代价是很多心意始终没被说出口。',
+  prompts:['设想{A}的主导背后，是否也在替{B}扛下某种更大的责任或秩序','写一场积压已久的情绪终于被说出口的戏','构建一个规则严苛的世界观背景，让两人的沉默有了不得不如此的理由']},
+ obsession:{name:'势不两立的执念',tagline:'太像了所以互相伤害，太深了所以无法放手',
+  analysis:'{A}和{B}都依赖性强、主导欲也强，两人太过相似，反而容易在争夺中互相伤害，却谁都无法真正放开对方。',
+  getAlong:'相处时充满张力，两人都想主导、都不肯退让，表面对立，实则谁也离不开对方的存在。',
+  conflict:'冲突激烈且反复，很多时候是"因为太在乎才争"，伤害对方的同时自己也在承受同样的痛。',
+  bond:'情感连接近乎执念——两人像镜子照出彼此最深的欲望和恐惧，这种关系很难被简单定义为爱或恨。',
+  prompts:['设想{A}和{B}是被同一个身份、家族或命运锚定在一起，无法真正分开','写一场两人互相伤害到极致、却谁都不肯先放手的戏','设计一个两人共同的"心结"起源——是童年、血缘还是某个无法改写的誓言']},
+ distantCompanions:{name:'疏离的同行者',tagline:'保持距离却始终同路，是最松弛的陪伴方式',
+  analysis:'{A}和{B}依赖性都很低，冲突倾向也低，两人更像是各自独立、却恰好同路的旅伴，不需要太多情感捆绑。',
+  getAlong:'相处轻松随意，不会互相束缚，也不追问太多，保持着舒服的距离感。',
+  conflict:'几乎没有正面冲突，意见不合时更倾向各退一步，或者干脆各走各的，很少纠缠。',
+  bond:'情感连接是松弛而长久的——不常说"需要你"，但走到哪里，回头总会发现对方还在附近。',
+  prompts:['构建一个让两人注定同路却各自独立的世界观——比如共同的旅程或使命','写一场两人各自忙碌、却在关键时刻不约而同出现的戏','设想多年后两人各自的人生轨迹，看看"同路"这件事究竟意味着什么']},
+ mirror:{name:'命运纠缠的镜像',tagline:'像是同一个灵魂的两种模样，彼此都是对方的影子',
+  analysis:'{A}和{B}在依赖、冲突、信任、主导四个维度上高度接近，几乎像是同一种性格投射到两个不同的人身上。',
+  getAlong:'相处时常常有"这个人怎么这么懂我"的错觉，很多反应和选择都出奇一致，默契近乎本能。',
+  conflict:'冲突模式相似，吵架方式和退让节奏几乎同步，很少陷入僵局，因为两人处理问题的逻辑本就相近。',
+  bond:'情感连接更像是一种自我认同的延伸——理解对方，某种程度上也是在理解自己。',
+  prompts:['设想{A}和{B}其实来自同一个更大的叙事——镜像、平行世界或血脉的呼应','写一场两人做出同一个选择、却各自以为对方不会懂的戏','设计一个让两人差异第一次显现的关键事件，打破"我们很像"的错觉']},
+ contract:{name:'契约式关系',tagline:'边界清晰、责任明确，感情藏在规则之下',
+  analysis:'{A}和{B}信任建立都很慢、依赖性也低，两人更习惯用清晰的边界和规则来定义关系，而不是模糊的情感依附。',
+  getAlong:'相处理性克制，各自保留独立空间，很多互动更像是"约定"而非"随心"，但正因如此反而少有误会。',
+  conflict:'很少出现情绪化的冲突，遇到分歧更倾向摆事实、谈条件，把感受留在规则之外。',
+  bond:'情感连接藏得很深——两人很少直接表达在意，却会一直遵守着彼此之间那份没有说破的默契约定。',
+  prompts:['构建两人关系背后的规则体系——是家族契约、组织制度还是某种交易','写一场两人打破原有"规则"、第一次坦白真实情感的戏','设想契约之外，两人各自藏着怎样不为人知的真实情感']}
+};
+
+/* ---------------- 状态 ---------------- */
+const state={names:{A:'OC A',B:'OC B'},currentOC:'A',idx:0,answers:{A:Array(16).fill(null),B:Array(16).fill(null)}};
+const $=s=>document.querySelector(s);
+const show=id=>{['screen-cover','screen-quiz','screen-transition','screen-result'].forEach(s=>$('#'+s).classList.toggle('hidden',s!==id));window.scrollTo({top:0,behavior:'smooth'})};
+
+$('#startBtn').onclick=()=>{
+  const a=$('#nameA').value.trim(), b=$('#nameB').value.trim();
+  if(a) state.names.A=a;
+  if(b) state.names.B=b;
+  state.currentOC='A'; state.idx=0;
+  show('screen-quiz'); renderQuestion();
+};
+
+function renderQuestion(){
+  const q=QUESTIONS[state.idx];
+  const ans=state.answers[state.currentOC][state.idx];
+  const name=state.names[state.currentOC];
+  const globalIdx=(state.currentOC==='A'?0:16)+state.idx;
+  $('#whoDot').style.background=state.currentOC==='A'?'var(--teal)':'var(--pink)';
+  $('#whoName').textContent=`正在为 ${name} 作答`;
+  $('#counter').textContent=`${globalIdx+1} / 32`;
+  $('#bar').style.width=(globalIdx/32*100)+'%';
+  $('#bar').style.background=state.currentOC==='A'?'var(--teal)':'var(--pink)';
+  $('#qtag').textContent=q.tag;
+  $('#qtag').style.background=state.currentOC==='A'?'var(--peach)':'var(--peach)';
+  $('#qnum').textContent=`第 ${state.idx+1} / 16 题`;
+  $('#question').textContent=q.q.replace('TA',name);
+  $('#options').innerHTML=q.o.map((o,i)=>`<button class="option ${ans===i?'selected':''}" data-i="${i}"><span class="idx">${String.fromCharCode(65+i)}</span><span>${o}</span></button>`).join('');
+  document.querySelectorAll('.option').forEach(el=>el.onclick=()=>{state.answers[state.currentOC][state.idx]=+el.dataset.i;renderQuestion();});
+  $('#prevBtn').disabled=(state.currentOC==='A'&&state.idx===0);
+  $('#nextBtn').disabled=ans===null;
+  $('#nextBtn').textContent=state.idx===15?(state.currentOC==='A'?`完成 ${name} 的部分`:'查看关系测试结果'):'下一题';
+}
+
+$('#prevBtn').onclick=()=>{
+  if(state.idx>0){state.idx--;renderQuestion();}
+};
+$('#nextBtn').onclick=()=>{
+  const ans=state.answers[state.currentOC][state.idx];
+  if(ans===null)return;
+  if(state.idx<15){state.idx++;renderQuestion();return;}
+  if(state.currentOC==='A'){
+    $('#transTitle').textContent=`${state.names.A} 的部分完成啦`;
+    $('#transText').textContent=`接下来换 ${state.names.B} 登场，用同样的16个问题，看看TA在关系里是什么样子。`;
+    $('#transBtn').textContent=`开始为 ${state.names.B} 作答`;
+    show('screen-transition');
+  }else{
+    showResult();
+  }
+};
+$('#transBtn').onclick=()=>{state.currentOC='B';state.idx=0;show('screen-quiz');renderQuestion();};
+
+/* ---------------- 计分 ---------------- */
+function computeScores(oc){
+  const ans=state.answers[oc];
+  const sums={dependency:[],conflict:[],trust:[],dominance:[]};
+  QUESTIONS.forEach((q,i)=>{
+    const a=ans[i];
+    const val=q.dim==='dependency'?[0,33,66,100][a]:[100,66,33,0][a];
+    sums[q.dim].push(val);
+  });
+  const out={};
+  Object.keys(sums).forEach(k=>{out[k]=Math.round(sums[k].reduce((x,y)=>x+y,0)/sums[k].length)});
+  return out;
+}
+function label(v){return v>=60?'high':(v<=40?'low':'mid')}
+
+function determineType(A,B){
+  // 12种类型统一比较匹配度，取消“宿敌”万能兜底
+  const avg=k=>(A[k]+B[k])/2;
+  const diff=k=>Math.abs(A[k]-B[k]);
+  const close=k=>100-diff(k);
+
+  const s={
+    mirror: close('dependency')*.28+close('conflict')*.24+close('trust')*.24+close('dominance')*.24,
+    distant: (100-avg('dependency'))*.36+(100-avg('trust'))*.34+(100-avg('conflict'))*.18+close('dominance')*.12,
+    contract: (100-avg('dependency'))*.30+avg('trust')*.20+(100-avg('conflict'))*.25+diff('dominance')*.25,
+    lovehate: avg('dependency')*.38+avg('conflict')*.42+avg('trust')*.12+close('dominance')*.08,
+    nemesis: avg('conflict')*.48+avg('dominance')*.30+(100-avg('dependency'))*.12+diff('dominance')*.10,
+    symbiotic: avg('dependency')*.46+avg('trust')*.42+(100-avg('conflict'))*.08+close('dominance')*.04,
+    silent: avg('trust')*.48+(100-avg('conflict'))*.30+close('dependency')*.10+close('dominance')*.12,
+    guardian: diff('dependency')*.42+diff('dominance')*.38+avg('trust')*.16+(100-avg('conflict'))*.04,
+    obsessed: avg('conflict')*.38+avg('dependency')*.34+(100-avg('trust'))*.18+diff('trust')*.10,
+    rival: avg('dominance')*.42+close('dominance')*.28+avg('conflict')*.22+(100-avg('dependency'))*.08,
+    healing: diff('dependency')*.42+avg('trust')*.30+(100-avg('conflict'))*.20+diff('trust')*.08,
+    selfless: avg('trust')*.40+(100-avg('conflict'))*.28+diff('dependency')*.16+diff('dominance')*.16
+  };
+
+  const order=['mirror','distant','contract','lovehate','nemesis','symbiotic','silent','guardian','obsessed','rival','healing','selfless'];
+  let best=order[0], bestScore=-Infinity;
+  order.forEach((type,i)=>{
+    const tie=((A.dependency*3+B.trust*5+A.conflict*7+B.dominance*11+i*13)%17)/1000;
+    if(s[type]+tie>bestScore){bestScore=s[type]+tie;best=type;}
+  });
+  return best;
+}
+
+function fill(t,A,B){return t.replace(/\{A\}/g,A).replace(/\{B\}/g,B)}
+
+function showResult(){
+  const A=computeScores('A'), B=computeScores('B');
+  const key=determineType(A,B);
+  const t=TYPES[key];
+  const nameA=state.names.A, nameB=state.names.B;
+
+  $('#resName').textContent=t.name;
+  $('#resPair').textContent=`${nameA} × ${nameB}`;
+  $('#resTagline').textContent=t.tagline;
+  $('#resAnalysis').textContent=fill(t.analysis,nameA,nameB);
+  $('#resGetAlong').textContent=fill(t.getAlong,nameA,nameB);
+  $('#resConflict').textContent=fill(t.conflict,nameA,nameB);
+  $('#resBond').textContent=fill(t.bond,nameA,nameB);
+  $('#resPrompts').innerHTML=t.prompts.map((p,i)=>`<li><span class="n">${i+1}</span><span>${fill(p,nameA,nameB)}</span></li>`).join('');
+
+  const order=['dependency','conflict','trust','dominance'];
+  $('#dimBlocks').innerHTML=order.map(k=>`
+    <div class="dim-block">
+      <div class="dim-head"><b>${DIM_META[k].name}</b><span>${DIM_META[k].note}</span></div>
+      <div class="dim-row"><span class="who">${nameA}</span><div class="meter teal"><i style="width:${A[k]}%"></i></div><span class="pct">${A[k]}%</span></div>
+      <div class="dim-row"><span class="who">${nameB}</span><div class="meter pink"><i style="width:${B[k]}%"></i></div><span class="pct">${B[k]}%</span></div>
+    </div>`).join('');
+
+  window._resultText=`《OC关系测试》结果\n${nameA} × ${nameB}\n关系类型：${t.name}——${t.tagline}\n\n关系类型分析：${fill(t.analysis,nameA,nameB)}\n\n相处模式：${fill(t.getAlong,nameA,nameB)}\n\n冲突模式：${fill(t.conflict,nameA,nameB)}\n\n情感连接方式：${fill(t.bond,nameA,nameB)}\n\n创作提示：\n${t.prompts.map((p,i)=>(i+1)+'. '+fill(p,nameA,nameB)).join('\n')}`;
+
+  show('screen-result');
+}
+
+$('#copyBtn').onclick=async()=>{
+  const text=window._resultText||'';
+  let copied=false;
+
+  // 优先使用现代 Clipboard API
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(text);
+      copied=true;
+    }
+  }catch(e){}
+
+  // 手机端 / 本地 HTML / 非 HTTPS 环境的兼容方案
+  if(!copied){
+    try{
+      const ta=document.createElement('textarea');
+      ta.value=text;
+      ta.setAttribute('readonly','');
+      ta.style.position='fixed';
+      ta.style.left='-9999px';
+      ta.style.top='0';
+      ta.style.opacity='0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0,ta.value.length);
+      copied=document.execCommand('copy');
+      document.body.removeChild(ta);
+    }catch(e){}
+  }
+
+  $('#copyHint').textContent=copied?'已复制到剪贴板 ✓':'复制失败，请长按结果文字手动复制';
+  setTimeout(()=>$('#copyHint').textContent='',2200);
+};
+$('#restartBtn').onclick=()=>{
+  state.currentOC='A';state.idx=0;
+  state.answers={A:Array(16).fill(null),B:Array(16).fill(null)};
+  show('screen-cover');
+};
+</script>
+</body>
+</html>
